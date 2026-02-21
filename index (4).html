@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>نظام صرف الأدوية - مستشفى بغداد التعليمي</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'tajawal': ['Tajawal', 'sans-serif'],
+                        'space': ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        ivig: {
+                            400: '#c084fc',
+                            500: '#a855f7',
+                            600: '#9333ea',
+                            700: '#7c3aed',
+                        },
+                        albumin: {
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                        },
+                        tigecycline: {
+                            400: '#f472b6',
+                            500: '#ec4899',
+                            600: '#db2777',
+                        },
+                        colistin: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e1b4b;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --text-primary: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Floating Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+            bottom: 20%;
+            left: -80px;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+            top: 40%;
+            right: -100px;
+            animation-delay: -10s;
+        }
+
+        .orb-4 {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, #10b981 0%, transparent 70%);
+            bottom: -50px;
+            left: 30%;
+            animation-delay: -15s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 10px) scale(1.02); }
+        }
+
+        /* Glass Effect */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Form Inputs */
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            color: #f1f5f9;
+            font-size: 15px;
+            font-family: 'Tajawal', sans-serif;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+        }
+
+        .form-input::placeholder {
+            color: #64748b;
+        }
+
+        .form-input:disabled,
+        .form-input.readonly {
+            background: rgba(255, 255, 255, 0.03);
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        select.form-input {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 12px center;
+            background-size: 18px;
+            padding-left: 40px;
+        }
+
+        select.form-input option {
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 12px;
+        }
+
+        /* Labels */
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: #cbd5e1;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #f87171;
+        }
+
+        /* Buttons */
+        .btn-submit {
+            width: 100%;
+            padding: 16px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 16px;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-ivig {
+            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.4);
+        }
+        .btn-ivig:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(147, 51, 234, 0.5);
+        }
+
+        .btn-albumin {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
+        }
+        .btn-albumin:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(6, 182, 212, 0.5);
+        }
+
+        .btn-tigecycline {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            box-shadow: 0 4px 20px rgba(236, 72, 153, 0.4);
+        }
+        .btn-tigecycline:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(236, 72, 153, 0.5);
+        }
+
+        .btn-colistin {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        }
+        .btn-colistin:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(16, 185, 129, 0.5);
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 8px 12px;
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 10px 8px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            flex: 1;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #f1f5f9;
+            transform: scale(1.05);
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active svg {
+            transform: scale(1.1);
+        }
+
+        .nav-item.ivig.active { background: rgba(147, 51, 234, 0.2); color: #c084fc; }
+        .nav-item.albumin.active { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
+        .nav-item.tigecycline.active { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
+        .nav-item.colistin.active { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease forwards;
+            pointer-events: auto;
+            min-width: 280px;
+            max-width: 90vw;
+        }
+
+        .toast.success {
+            background: rgba(16, 185, 129, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.error {
+            background: rgba(239, 68, 68, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Form sections */
+        .form-section {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Gradient text */
+        .gradient-text-ivig {
+            background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-text-albumin {
+            background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-text-tigecycline {
+            background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-text-colistin {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Readonly field styling */
+        .readonly-field {
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* Reduce motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .orb { animation: none; }
+        }
+
+        /* Focus states */
+        *:focus-visible {
+            outline: 2px solid rgba(147, 51, 234, 0.5);
+            outline-offset: 2px;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="pb-24">
+    <!-- Background Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 px-4 py-4">
+        <div class="glass rounded-2xl px-5 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.5 20.5H3.5a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2h17a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-7"/>
+                            <path d="M8 7v7"/>
+                            <path d="M12 7v7"/>
+                            <path d="M17 7v7"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-white" style="font-family: 'Space Grotesk', sans-serif;">Drug Dispensing</h1>
+                        <p class="text-xs text-slate-400">مستشفى بغداد التعليمي</p>
+                    </div>
+                </div>
+                <div class="text-left">
+                    <p class="text-xs text-slate-400" id="currentDate"></p>
+                    <p class="text-xs text-slate-500" id="currentTime"></p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 px-4 py-4 max-w-lg mx-auto">
+        
+        <!-- IVIG Form -->
+        <section class="form-section active" id="ivigForm">
+            <div class="mb-5">
+                <h2 class="text-2xl font-bold gradient-text-ivig mb-1">نموذج IVIG</h2>
+                <p class="text-sm text-slate-400">Immunoglobulin Therapy Record</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 space-y-4">
+                <!-- Readonly Fields -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="readonly-field text-center">
+                        <p class="text-xs text-slate-500 mb-1">الدائرة</p>
+                        <p class="text-sm">دائرة مدينة الطب</p>
+                    </div>
+                    <div class="readonly-field text-center">
+                        <p class="text-xs text-slate-500 mb-1">المستشفى</p>
+                        <p class="text-sm">مستشفى بغداد التعليمي</p>
+                    </div>
+                </div>
+
+                <div class="h-px bg-white/10"></div>
+
+                <!-- Institution -->
+                <div>
+                    <label class="form-label">المؤسسة</label>
+                    <select class="form-input" id="ivigInstitution">
+                        <option value="مستشفى بغداد التعليمي">مستشفى بغداد التعليمي</option>
+                    </select>
+                </div>
+
+                <!-- Ward -->
+                <div>
+                    <label class="form-label">الردهة</label>
+                    <select class="form-input" id="ivigWard">
+                        <option value="">اختر الردهة</option>
+                        <option value="الوحدة العصبية">الوحدة العصبية</option>
+                        <option value="الوحدة الباطنية">الوحدة الباطنية</option>
+                        <option value="الوحدة الجراحية">الوحدة الجراحية</option>
+                        <option value="الوحدة النسائية">الوحدة النسائية</option>
+                        <option value="وحدة العناية المركزه">وحدة العناية المركزه</option>
+                    </select>
+                </div>
+
+                <!-- Patient Name -->
+                <div>
+                    <label class="form-label required">الاسم الكامل</label>
+                    <input type="text" class="form-input" id="ivigPatientName" placeholder="أدخل اسم المريض">
+                </div>
+
+                <!-- Age -->
+                <div>
+                    <label class="form-label required">العمر بالسنوات</label>
+                    <input type="number" class="form-input" id="ivigAge" placeholder="العمر" min="0" max="150">
+                </div>
+
+                <!-- Diagnosis -->
+                <div>
+                    <label class="form-label required">التشخيص الطبي (بالإنجليزية)</label>
+                    <input type="text" class="form-input" id="ivigDiagnosis" placeholder="Medical Diagnosis in English" dir="ltr">
+                    <p class="text-xs text-slate-500 mt-1">يُقبل الحروف الإنجليزية فقط</p>
+                </div>
+
+                <!-- Dosage -->
+                <div>
+                    <label class="form-label required">الجرعة بالغرام</label>
+                    <input type="number" class="form-input" id="ivigDosage" placeholder="جرعة بالغرام" step="0.1" min="0">
+                </div>
+
+                <!-- Response -->
+                <div>
+                    <label class="form-label">الاستجابة</label>
+                    <select class="form-input" id="ivigResponse">
+                        <option value="">اختر الاستجابة</option>
+                        <option value="مستجيب">مستجيب</option>
+                        <option value="غير مستجيب">غير مستجيب</option>
+                    </select>
+                </div>
+
+                <!-- Pharmacist -->
+                <div>
+                    <label class="form-label">اسم الصيدلي المسؤول</label>
+                    <input type="text" class="form-input" id="ivigPharmacist" placeholder="اسم الصيدلي">
+                </div>
+
+                <button type="button" class="btn-submit btn-ivig" onclick="submitForm('ivig')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 2L11 13"/>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                    </svg>
+                    <span id="ivigBtnText">إرسال النموذج</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Albumin Form -->
+        <section class="form-section" id="albuminForm">
+            <div class="mb-5">
+                <h2 class="text-2xl font-bold gradient-text-albumin mb-1">نموذج الألبومين</h2>
+                <p class="text-sm text-slate-400">Albumin Dispensing Record</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 space-y-4">
+                <!-- Readonly Fields -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="readonly-field text-center">
+                        <p class="text-xs text-slate-500 mb-1">الدائرة</p>
+                        <p class="text-sm">دائرة مدينة الطب</p>
+                    </div>
+                    <div class="readonly-field text-center">
+                        <p class="text-xs text-slate-500 mb-1">المستشفى</p>
+                        <p class="text-sm">مستشفى بغداد التعليمي</p>
+                    </div>
+                </div>
+
+                <div class="h-px bg-white/10"></div>
+
+                <!-- Patient Name -->
+                <div>
+                    <label class="form-label required">اسم المريض</label>
+                    <input type="text" class="form-input" id="albuminPatientName" placeholder="أدخل اسم المريض">
+                </div>
+
+                <!-- File Number -->
+                <div>
+                    <label class="form-label required">رقم الملف</label>
+                    <input type="text" class="form-input" id="albuminFileNumber" placeholder="رقم الملف">
+                </div>
+
+                <!-- Date -->
+                <div>
+                    <label class="form-label required">التاريخ</label>
+                    <input type="date" class="form-input" id="albuminDate" dir="ltr">
+                </div>
+
+                <!-- Floor -->
+                <div>
+                    <label class="form-label required">الطابق</label>
+                    <select class="form-input" id="albuminFloor">
+                        <option value="">اختر الطابق</option>
+                        <option value="عناية">عناية</option>
+                        <option value="ديلزه">ديلزه</option>
+                        <option value="الثاني">الثاني</option>
+                        <option value="الثالث">الثالث</option>
+                        <option value="الرابع">الرابع</option>
+                        <option value="الخامس">الخامس</option>
+                        <option value="السادس">السادس</option>
+                        <option value="الثامن">الثامن</option>
+                        <option value="التاسع">التاسع</option>
+                        <option value="العاشر">العاشر</option>
+                    </select>
+                </div>
+
+                <!-- Diagnosis -->
+                <div>
+                    <label class="form-label required">التشخيص</label>
+                    <select class="form-input" id="albuminDiagnosis" dir="ltr">
+                        <option value="">Select Diagnosis</option>
+                        <option value="Hypoalbuminemia">Hypoalbuminemia</option>
+                        <option value="Liver Cirrhosis">Liver Cirrhosis</option>
+                        <option value="Nephrotic Syndrome">Nephrotic Syndrome</option>
+                        <option value="Sepsis">Sepsis</option>
+                        <option value="Burns">Burns</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Quantity -->
+                <div>
+                    <label class="form-label required">العدد</label>
+                    <input type="number" class="form-input" id="albuminQuantity" placeholder="أدخل العدد" min="1">
+                </div>
+
+                <button type="button" class="btn-submit btn-albumin" onclick="submitForm('albumin')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 2L11 13"/>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                    </svg>
+                    <span id="albuminBtnText">إرسال النموذج</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Tigecycline Form -->
+        <section class="form-section" id="tigecyclineForm">
+            <div class="mb-5">
+                <h2 class="text-2xl font-bold gradient-text-tigecycline mb-1">نموذج التايغيسايكلين</h2>
+                <p class="text-sm text-slate-400">Tigecycline Therapy Record</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 space-y-4">
+                <!-- Patient Name -->
+                <div>
+                    <label class="form-label required">اسم المريض</label>
+                    <input type="text" class="form-input" id="tigecyclinePatientName" placeholder="أدخل اسم المريض">
+                </div>
+
+                <!-- Age -->
+                <div>
+                    <label class="form-label required">العمر</label>
+                    <input type="number" class="form-input" id="tigecyclineAge" placeholder="العمر" min="0" max="150">
+                </div>
+
+                <!-- Gender -->
+                <div>
+                    <label class="form-label required">الجنس</label>
+                    <select class="form-input" id="tigecyclineGender">
+                        <option value="">اختر الجنس</option>
+                        <option value="ذكر">ذكر</option>
+                        <option value="انثى">انثى</option>
+                    </select>
+                </div>
+
+                <!-- Diagnosis -->
+                <div>
+                    <label class="form-label required">التشخيص</label>
+                    <input type="text" class="form-input" id="tigecyclineDiagnosis" placeholder="أدخل التشخيص">
+                </div>
+
+                <!-- Dosage -->
+                <div>
+                    <label class="form-label required">الجرعة</label>
+                    <input type="text" class="form-input" id="tigecyclineDosage" placeholder="مثال: 50 x2">
+                </div>
+
+                <!-- Pharmacist -->
+                <div>
+                    <label class="form-label required">اسم الصيدلي</label>
+                    <input type="text" class="form-input" id="tigecyclinePharmacist" placeholder="أدخل اسم الصيدلي">
+                </div>
+
+                <button type="button" class="btn-submit btn-tigecycline" onclick="submitForm('tigecycline')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 2L11 13"/>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                    </svg>
+                    <span id="tigecyclineBtnText">إرسال النموذج</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Colistin Form -->
+        <section class="form-section" id="colistinForm">
+            <div class="mb-5">
+                <h2 class="text-2xl font-bold gradient-text-colistin mb-1">نموذج الكوليستين</h2>
+                <p class="text-sm text-slate-400">Colistin Therapy Record</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 space-y-4">
+                <!-- Readonly Field -->
+                <div class="readonly-field text-center">
+                    <p class="text-xs text-slate-500 mb-1">اسم المؤسسة</p>
+                    <p class="text-sm">دائرة مدينة الطب - مستشفى بغداد التعليمي</p>
+                </div>
+
+                <div class="h-px bg-white/10"></div>
+
+                <!-- Patient Name -->
+                <div>
+                    <label class="form-label required">اسم المريض</label>
+                    <input type="text" class="form-input" id="colistinPatientName" placeholder="أدخل اسم المريض">
+                </div>
+
+                <!-- Age -->
+                <div>
+                    <label class="form-label required">العمر</label>
+                    <input type="number" class="form-input" id="colistinAge" placeholder="العمر" min="0" max="150">
+                </div>
+
+                <!-- Gender -->
+                <div>
+                    <label class="form-label required">الجنس</label>
+                    <select class="form-input" id="colistinGender">
+                        <option value="">اختر الجنس</option>
+                        <option value="ذكر">ذكر</option>
+                        <option value="انثى">انثى</option>
+                    </select>
+                </div>
+
+                <!-- Start Date -->
+                <div>
+                    <label class="form-label required">تاريخ بدء العلاج</label>
+                    <input type="date" class="form-input" id="colistinStartDate" dir="ltr">
+                </div>
+
+                <!-- Dosage -->
+                <div>
+                    <label class="form-label required">الجرعة</label>
+                    <input type="text" class="form-input" id="colistinDosage" placeholder="مثال: 2 x 350000">
+                </div>
+
+                <!-- Pharmacist -->
+                <div>
+                    <label class="form-label required">اسم الصيدلي</label>
+                    <input type="text" class="form-input" id="colistinPharmacist" placeholder="أدخل اسم الصيدلي">
+                </div>
+
+                <button type="button" class="btn-submit btn-colistin" onclick="submitForm('colistin')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 2L11 13"/>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                    </svg>
+                    <span id="colistinBtnText">إرسال النموذج</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-8 text-center">
+            <p class="text-xs text-slate-500">made by Luay</p>
+        </footer>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="glass rounded-2xl flex gap-1 p-2 max-w-lg mx-auto">
+            <button class="nav-item ivig active" onclick="switchForm('ivig')" aria-label="IVIG Form">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                </svg>
+                <span>IVIG</span>
+            </button>
+            <button class="nav-item albumin" onclick="switchForm('albumin')" aria-label="Albumin Form">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v20"/>
+                    <path d="M2 12h20"/>
+                    <circle cx="12" cy="12" r="4"/>
+                </svg>
+                <span>ألبومين</span>
+            </button>
+            <button class="nav-item tigecycline" onclick="switchForm('tigecycline')" aria-label="Tigecycline Form">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.5 20.5H3.5a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2h17a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-7"/>
+                    <path d="M8 7v7"/>
+                    <path d="M12 7v7"/>
+                    <path d="M17 7v7"/>
+                </svg>
+                <span>تايغيسايكلين</span>
+            </button>
+            <button class="nav-item colistin" onclick="switchForm('colistin')" aria-label="Colistin Form">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m7.5 4.27 9 5.15"/>
+                    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                    <path d="m3.3 7 8.7 5 8.7-5"/>
+                    <path d="M12 22V12"/>
+                </svg>
+                <span>كوليستين</span>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            // Replace with your Google Apps Script Web App URL
+            GOOGLE_SCRIPT_URL: 'YOUR_GOOGLE_APPS_SCRIPT_URL'
+        };
+
+        // State
+        let currentForm = 'ivig';
+        let isSubmitting = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDates();
+            initializeFormNavigation();
+        });
+
+        // Date/Time Display
+        function initializeDates() {
+            const now = new Date();
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit' };
+            
+            const dateEl = document.getElementById('currentDate');
+            const timeEl = document.getElementById('currentTime');
+            
+            if (dateEl) dateEl.textContent = now.toLocaleDateString('ar-IQ', dateOptions);
+            if (timeEl) timeEl.textContent = now.toLocaleTimeString('ar-IQ', timeOptions);
+
+            // Auto-fill date fields
+            const today = now.toISOString().split('T')[0];
+            const albuminDate = document.getElementById('albuminDate');
+            const colistinDate = document.getElementById('colistinStartDate');
+            
+            if (albuminDate) albuminDate.value = today;
+            if (colistinDate) colistinDate.value = today;
+
+            // Update time every minute
+            setInterval(() => {
+                const currentTime = new Date();
+                if (timeEl) timeEl.textContent = currentTime.toLocaleTimeString('ar-IQ', timeOptions);
+            }, 60000);
+        }
+
+        // Form Navigation
+        function initializeFormNavigation() {
+            const savedForm = localStorage.getItem('lastForm');
+            if (savedForm) {
+                switchForm(savedForm, false);
+            }
+        }
+
+        function switchForm(formType, saveState = true) {
+            currentForm = formType;
+            
+            // Hide all forms
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected form
+            const formEl = document.getElementById(`${formType}Form`);
+            if (formEl) formEl.classList.add('active');
+            
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const navItem = document.querySelector(`.nav-item.${formType}`);
+            if (navItem) navItem.classList.add('active');
+            
+            // Save state
+            if (saveState) {
+                localStorage.setItem('lastForm', formType);
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Toast Notifications
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    ${type === 'success' 
+                        ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>'
+                        : '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>'
+                    }
+                </svg>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Form Validation
+        function validateIVIGForm() {
+            const patientName = document.getElementById('ivigPatientName')?.value?.trim();
+            const age = document.getElementById('ivigAge')?.value;
+            const diagnosis = document.getElementById('ivigDiagnosis')?.value?.trim();
+            const dosage = document.getElementById('ivigDosage')?.value;
+
+            if (!patientName) {
+                showToast('يرجى إدخال اسم المريض', 'error');
+                return false;
+            }
+            if (!age || age < 0 || age > 150) {
+                showToast('يرجى إدخال عمر صحيح', 'error');
+                return false;
+            }
+            if (!diagnosis) {
+                showToast('يرجى إدخال التشخيص', 'error');
+                return false;
+            }
+            // English only validation
+            const englishRegex = /^[A-Za-z\s]+$/;
+            if (!englishRegex.test(diagnosis)) {
+                showToast('يجب أن يكون التشخيص بالحروف الإنجليزية فقط', 'error');
+                return false;
+            }
+            if (!dosage || dosage <= 0) {
+                showToast('يرجى إدخال جرعة صحيحة', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        function validateAlbuminForm() {
+            const patientName = document.getElementById('albuminPatientName')?.value?.trim();
+            const fileNumber = document.getElementById('albuminFileNumber')?.value?.trim();
+            const date = document.getElementById('albuminDate')?.value;
+            const floor = document.getElementById('albuminFloor')?.value;
+            const diagnosis = document.getElementById('albuminDiagnosis')?.value;
+            const quantity = document.getElementById('albuminQuantity')?.value;
+
+            if (!patientName) {
+                showToast('يرجى إدخال اسم المريض', 'error');
+                return false;
+            }
+            if (!fileNumber) {
+                showToast('يرجى إدخال رقم الملف', 'error');
+                return false;
+            }
+            if (!date) {
+                showToast('يرجى اختيار التاريخ', 'error');
+                return false;
+            }
+            if (!floor) {
+                showToast('يرجى اختيار الطابق', 'error');
+                return false;
+            }
+            if (!diagnosis) {
+                showToast('يرجى اختيار التشخيص', 'error');
+                return false;
+            }
+            if (!quantity || quantity < 1) {
+                showToast('يرجى إدخال العدد', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        function validateTigecyclineForm() {
+            const patientName = document.getElementById('tigecyclinePatientName')?.value?.trim();
+            const age = document.getElementById('tigecyclineAge')?.value;
+            const gender = document.getElementById('tigecyclineGender')?.value;
+            const diagnosis = document.getElementById('tigecyclineDiagnosis')?.value?.trim();
+            const dosage = document.getElementById('tigecyclineDosage')?.value?.trim();
+            const pharmacist = document.getElementById('tigecyclinePharmacist')?.value?.trim();
+
+            if (!patientName) {
+                showToast('يرجى إدخال اسم المريض', 'error');
+                return false;
+            }
+            if (!age || age < 0 || age > 150) {
+                showToast('يرجى إدخال عمر صحيح', 'error');
+                return false;
+            }
+            if (!gender) {
+                showToast('يرجى اختيار الجنس', 'error');
+                return false;
+            }
+            if (!diagnosis) {
+                showToast('يرجى إدخال التشخيص', 'error');
+                return false;
+            }
+            if (!dosage) {
+                showToast('يرجى إدخال الجرعة', 'error');
+                return false;
+            }
+            if (!pharmacist) {
+                showToast('يرجى إدخال اسم الصيدلي', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        function validateColistinForm() {
+            const patientName = document.getElementById('colistinPatientName')?.value?.trim();
+            const age = document.getElementById('colistinAge')?.value;
+            const gender = document.getElementById('colistinGender')?.value;
+            const startDate = document.getElementById('colistinStartDate')?.value;
+            const dosage = document.getElementById('colistinDosage')?.value?.trim();
+            const pharmacist = document.getElementById('colistinPharmacist')?.value?.trim();
+
+            if (!patientName) {
+                showToast('يرجى إدخال اسم المريض', 'error');
+                return false;
+            }
+            if (!age || age < 0 || age > 150) {
+                showToast('يرجى إدخال عمر صحيح', 'error');
+                return false;
+            }
+            if (!gender) {
+                showToast('يرجى اختيار الجنس', 'error');
+                return false;
+            }
+            if (!startDate) {
+                showToast('يرجى اختيار تاريخ بدء العلاج', 'error');
+                return false;
+            }
+            if (!dosage) {
+                showToast('يرجى إدخال الجرعة', 'error');
+                return false;
+            }
+            if (!pharmacist) {
+                showToast('يرجى إدخال اسم الصيدلي', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        // Collect Form Data
+        function collectIVIGData() {
+            const now = new Date();
+            return {
+                institution: document.getElementById('ivigInstitution')?.value || '',
+                ward: document.getElementById('ivigWard')?.value || '',
+                patientName: document.getElementById('ivigPatientName')?.value?.trim() || '',
+                age: document.getElementById('ivigAge')?.value || '',
+                diagnosis: document.getElementById('ivigDiagnosis')?.value?.trim() || '',
+                dosage: document.getElementById('ivigDosage')?.value || '',
+                response: document.getElementById('ivigResponse')?.value || '',
+                pharmacist: document.getElementById('ivigPharmacist')?.value?.trim() || '',
+                timestamp: now.toLocaleString('en-US', { timeZone: 'Asia/Baghdad' })
+            };
+        }
+
+        function collectAlbuminData() {
+            const now = new Date();
+            const dateValue = document.getElementById('albuminDate')?.value || '';
+            const monthName = dateValue ? new Date(dateValue).toLocaleDateString('ar-IQ', { month: 'long' }) : '';
+            
+            return {
+                department: 'دائرة مدينة الطب',
+                hospital: 'مستشفى بغداد التعليمي',
+                patientName: document.getElementById('albuminPatientName')?.value?.trim() || '',
+                fileNumber: document.getElementById('albuminFileNumber')?.value?.trim() || '',
+                date: dateValue,
+                month: monthName,
+                floor: document.getElementById('albuminFloor')?.value || '',
+                diagnosis: document.getElementById('albuminDiagnosis')?.value || '',
+                quantity: document.getElementById('albuminQuantity')?.value || '',
+                timestamp: now.toLocaleString('en-US', { timeZone: 'Asia/Baghdad' })
+            };
+        }
+
+        function collectTigecyclineData() {
+            const now = new Date();
+            return {
+                patientName: document.getElementById('tigecyclinePatientName')?.value?.trim() || '',
+                institution: 'دائرة مدينة الطب - مستشفى بغداد التعليمي',
+                gender: document.getElementById('tigecyclineGender')?.value || '',
+                age: document.getElementById('tigecyclineAge')?.value || '',
+                ward: '',
+                diagnosis: document.getElementById('tigecyclineDiagnosis')?.value?.trim() || '',
+                dosage: document.getElementById('tigecyclineDosage')?.value?.trim() || '',
+                daysCount: '',
+                scr: '',
+                cultureResult: '',
+                indication: '',
+                pharmacist: document.getElementById('tigecyclinePharmacist')?.value?.trim() || '',
+                timestamp: now.toLocaleString('en-US', { timeZone: 'Asia/Baghdad' })
+            };
+        }
+
+        function collectColistinData() {
+            const now = new Date();
+            return {
+                institution: 'دائرة مدينة الطب - مستشفى بغداد التعليمي',
+                patientName: document.getElementById('colistinPatientName')?.value?.trim() || '',
+                age: document.getElementById('colistinAge')?.value || '',
+                gender: document.getElementById('colistinGender')?.value || '',
+                ward: '',
+                startDate: document.getElementById('colistinStartDate')?.value || '',
+                dosage: document.getElementById('colistinDosage')?.value?.trim() || '',
+                pharmacist: document.getElementById('colistinPharmacist')?.value?.trim() || '',
+                timestamp: now.toLocaleString('en-US', { timeZone: 'Asia/Baghdad' })
+            };
+        }
+
+        // Reset Forms
+        function resetForm(formType) {
+            switch (formType) {
+                case 'ivig':
+                    document.getElementById('ivigWard').value = '';
+                    document.getElementById('ivigPatientName').value = '';
+                    document.getElementById('ivigAge').value = '';
+                    document.getElementById('ivigDiagnosis').value = '';
+                    document.getElementById('ivigDosage').value = '';
+                    document.getElementById('ivigResponse').value = '';
+                    document.getElementById('ivigPharmacist').value = '';
+                    break;
+                case 'albumin':
+                    document.getElementById('albuminPatientName').value = '';
+                    document.getElementById('albuminFileNumber').value = '';
+                    document.getElementById('albuminDate').value = new Date().toISOString().split('T')[0];
+                    document.getElementById('albuminFloor').value = '';
+                    document.getElementById('albuminDiagnosis').value = '';
+                    document.getElementById('albuminQuantity').value = '';
+                    break;
+                case 'tigecycline':
+                    document.getElementById('tigecyclinePatientName').value = '';
+                    document.getElementById('tigecyclineAge').value = '';
+                    document.getElementById('tigecyclineGender').value = '';
+                    document.getElementById('tigecyclineDiagnosis').value = '';
+                    document.getElementById('tigecyclineDosage').value = '';
+                    document.getElementById('tigecyclinePharmacist').value = '';
+                    break;
+                case 'colistin':
+                    document.getElementById('colistinPatientName').value = '';
+                    document.getElementById('colistinAge').value = '';
+                    document.getElementById('colistinGender').value = '';
+                    document.getElementById('colistinStartDate').value = new Date().toISOString().split('T')[0];
+                    document.getElementById('colistinDosage').value = '';
+                    document.getElementById('colistinPharmacist').value = '';
+                    break;
+            }
+        }
+
+        // Submit Form
+        async function submitForm(formType) {
+            if (isSubmitting) return;
+
+            // Validate
+            let isValid = false;
+            let formData = {};
+
+            switch (formType) {
+                case 'ivig':
+                    isValid = validateIVIGForm();
+                    if (isValid) formData = collectIVIGData();
+                    break;
+                case 'albumin':
+                    isValid = validateAlbuminForm();
+                    if (isValid) formData = collectAlbuminData();
+                    break;
+                case 'tigecycline':
+                    isValid = validateTigecyclineForm();
+                    if (isValid) formData = collectTigecyclineData();
+                    break;
+                case 'colistin':
+                    isValid = validateColistinForm();
+                    if (isValid) formData = collectColistinData();
+                    break;
+            }
+
+            if (!isValid) return;
+
+            // Set loading state
+            isSubmitting = true;
+            const btn = document.querySelector(`.btn-${formType}`);
+            const btnText = document.getElementById(`${formType}BtnText`);
+            
+            if (btn) btn.disabled = true;
+            if (btnText) btnText.innerHTML = '<span class="spinner"></span> جاري الإرسال...';
+
+            try {
+                // Check if Google Script URL is configured
+                if (CONFIG.GOOGLE_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+                    // Simulate submission for demo
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    showToast('تم حفظ البيانات بنجاح (وضع العرض)', 'success');
+                    resetForm(formType);
+                    console.log('Form Data:', { sheetName: formType, data: formData });
+                } else {
+                    // Actual submission
+                    const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            sheetName: formType,
+                            data: formData
+                        })
+                    });
+
+                    showToast('تم إرسال البيانات بنجاح', 'success');
+                    resetForm(formType);
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                showToast('حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.', 'error');
+            } finally {
+                isSubmitting = false;
+                if (btn) btn.disabled = false;
+                if (btnText) btnText.textContent = 'إرسال النموذج';
+            }
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                document.body.classList.add('keyboard-nav');
+            }
+        });
+
+        document.addEventListener('mousedown', () => {
+            document.body.classList.remove('keyboard-nav');
+        });
+    </script>
+</body>
+</html>
